@@ -1,0 +1,18 @@
+instances:
+  staging:
+    url: https://n8n-staging.example.com
+    api_key: ${N8N_STAGING_KEY}
+  production:
+    url: https://n8n.example.com
+    api_key: ${N8N_PRODUCTION_KEY}
+# The outer key is the TARGET instance; inner keys are local credential names.
+credentials_map:
+  production:
+    Postgres - Staging: Postgres - Production
+# Optional IDs for credentials not referenced by a target workflow yet.
+# credential_ids:
+#   production:
+#     postgres:
+#       Postgres - Production: target-credential-id
+workflow_dir: ./workflows
+timeout: 30

@@ -1,0 +1,24 @@
+[build-system]
+requires = ["hatchling>=1.26"]
+build-backend = "hatchling.build"
+
+[project]
+name = "n8n-sync"
+version = "0.1.0"
+description = "Version and synchronize n8n Community Edition workflows"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = ["typer>=0.12", "httpx>=0.27", "rich>=13", "pydantic-settings>=2.2", "PyYAML>=6"]
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "pytest-asyncio>=0.24", "ruff>=0.9"]
+
+[project.scripts]
+n8n-sync = "n8n_sync.cli:app"
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
