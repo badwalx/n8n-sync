@@ -1,0 +1,6 @@
+instances:
+  production:
+    url: https://n8n.b7co.cloud
+    api_key: ${N8N_API_KEY}
+workflow_dir: ./workflows
+timeout: 30

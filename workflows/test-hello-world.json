@@ -1,0 +1,52 @@
+---
+name: Test - Hello World
+active: false
+tags: []
+lastModified: '2026-10-18T23:17:55.285Z'
+---
+{
+  "connections": {
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "index": 0,
+            "node": "Set Value",
+            "type": "main"
+          }
+        ]
+      ]
+    }
+  },
+  "nodes": [
+    {
+      "name": "Manual Trigger",
+      "position": [
+        0,
+        0
+      ],
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1
+    },
+    {
+      "name": "Set Value",
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "greeting",
+              "value": "hello from n8n-sync"
+            }
+          ]
+        }
+      },
+      "position": [
+        220,
+        0
+      ],
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1
+    }
+  ],
+  "settings": {}
+}
