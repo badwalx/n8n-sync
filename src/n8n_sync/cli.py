@@ -116,6 +116,91 @@ def diff(
 
 
 @app.command()
+def init(
+    config: ConfigOption = Path(".n8n-sync.yml"),
+):
+    """Interactively create a .n8n-sync.yml configuration file."""
+    if config.exists():
+        overwrite = typer.confirm(f"{config} already exists. Overwrite?", default=False)
+        if not overwrite:
+            raise typer.Exit(0)
+
+    console.print("[bold]n8n-sync setup[/bold]\n")
+
+    instances = {}
+    while True:
+        name = typer.prompt("Instance name", default="production" if not instances else "")
+        if not name:
+            break
+        url = typer.prompt("  n8n URL (e.g. https://n8n.example.com)")
+        env_var = typer.prompt("  API key env var name", default=f"N8N_{name.upper()}_KEY")
+        instances[name] = {"url": url.rstrip("/"), "api_key": f"${{{env_var}}}"}
+
+        if not typer.confirm("Add another instance?", default=False):
+            break
+
+    if not instances:
+        errors.print("No instances configured.", style="red")
+        raise typer.Exit(2)
+
+    config_data = {"instances": instances, "workflows_dir": "workflows"}
+
+    # Add credential mapping if multiple instances
+    names = list(instances.keys())
+    if len(names) >= 2:
+        console.print(f"\nCredential mapping: {names[0]} → {names[1]}")
+        cred_map = {}
+        while True:
+            source = typer.prompt("  Source credential name (empty to skip)", default="")
+            if not source:
+                break
+            target = typer.prompt("  Target credential name", default=source)
+            cred_map[source] = target
+        if cred_map:
+            config_data["credentials_map"] = {names[1]: cred_map}
+
+    import yaml
+    config.write_text(yaml.safe_dump(config_data, sort_keys=False, allow_unicode=True), encoding="utf-8")
+    console.print(f"\n✓ Config written to {config}")
+    console.print("Next steps:")
+    console.print(f"  1. Set your API key: export {list(instances.values())[0]['api_key'].strip('${}')}='your-key'")
+    console.print(f"  2. Pull workflows:    n8n-sync pull")
+    console.print(f"  3. Commit to git:     git add workflows && git commit -m 'initial'")
+
+
+@app.command(name="list")
+def list_workflows(
+    config: ConfigOption = Path(".n8n-sync.yml"),
+    instance: InstanceOption = None,
+):
+    """List remote workflow names and IDs."""
+    config_obj = load_config(config)
+    name, target = config_obj.instance(instance)
+
+    async def _list():
+        async with N8nClient(target.url, target.api_key.get_secret_value(), config_obj.timeout) as client:
+            workflows = await client.workflows()
+            if not workflows:
+                console.print("No workflows found.")
+                return
+            table = Table(title=f"{name}: remote workflows")
+            table.add_column("ID")
+            table.add_column("Name")
+            table.add_column("Active")
+            table.add_column("Tags")
+            for wf in workflows:
+                tags = ", ".join(sorted(t.get("name", "") for t in wf.get("tags", [])))
+                table.add_row(str(wf.get("id", "")), wf.get("name", ""), "✓" if wf.get("active") else "✗", tags)
+            console.print(table)
+
+    try:
+        asyncio.run(_list())
+    except (SyncError, OSError) as exc:
+        errors.print(f"Error: {exc}", style="red", markup=False)
+        raise typer.Exit(2) from exc
+
+
+@app.command()
 def status(
     config: ConfigOption = Path(".n8n-sync.yml"),
     instance: InstanceOption = None,

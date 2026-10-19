@@ -50,7 +50,17 @@ class Config(BaseSettings):
         return name, self.instances[name]
 
 
+def load_dotenv():
+    """Load .env file if python-dotenv is available."""
+    try:
+        from dotenv import load_dotenv as _load
+        _load()
+    except ImportError:
+        pass
+
+
 def load_config(path: Path) -> Config:
+    load_dotenv()
     try:
         raw = yaml.safe_load(path.read_text(encoding="utf-8"))
         if not isinstance(raw, dict) or not isinstance(raw.get("instances"), dict):
