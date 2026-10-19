@@ -1,0 +1,19 @@
+name: n8n workflow drift check
+
+on:
+  push:
+    paths: ['workflows/**']
+  pull_request:
+    paths: ['workflows/**']
+  schedule:
+    - cron: '0 9 * * 1-5'  # weekdays 9am UTC
+
+jobs:
+  drift:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: pip install n8n-sync
+      - run: n8n-sync diff --instance production --check
+        env:
+          N8N_PRODUCTION_KEY: ${{ secrets.N8N_PRODUCTION_KEY }}

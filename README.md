@@ -1,41 +1,149 @@
 # n8n-sync
 
-A Python CLI for versioning and synchronizing n8n Community Edition workflows using the public API v1. Requires Python 3.10+ and an n8n API key with workflow read/write permissions (and tag read/write permissions when synchronizing tags).
+[![PyPI version](https://img.shields.io/pypi/v/n8n-sync.svg)](https://pypi.org/project/n8n-sync/)
+[![Python](https://img.shields.io/pypi/pyversions/n8n-sync.svg)](https://pypi.org/project/n8n-sync/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Tests](https://github.com/badwalx/n8n-sync/actions/workflows/ci.yml/badge.svg)](https://github.com/badwalx/n8n-sync/actions/workflows/ci.yml)
+
+**Git-friendly version control for n8n Community Edition workflows.**
+
+n8n Enterprise has Source Control at €667/mo. Community Edition has nothing.
+**n8n-sync fills that gap** — a CLI that makes your n8n workflows first-class Git citizens.
+
+## Quick start
 
 ```sh
-pip install .
-cp .n8n-sync.example.yml .n8n-sync.yml
-export N8N_STAGING_KEY='your-key'
-export N8N_PRODUCTION_KEY='your-other-key'
-n8n-sync pull --instance staging
-git add workflows
-git commit -m 'Snapshot workflows'
-n8n-sync push --instance production --dry-run
-n8n-sync push --instance production
-n8n-sync diff --instance production --check
-n8n-sync status --instance production
+pip install n8n-sync
+n8n-sync init          # configure your n8n instance
+n8n-sync pull          # export workflows to normalized files
+git add workflows && git commit -m "snapshot"
+n8n-sync diff --check  # CI-ready: exits 1 on drift, 0 if in-sync
+n8n-sync push --dry-run  # preview changes before applying
+n8n-sync push            # apply changes to remote
 ```
 
-Use `--config PATH` on each command. A single configured instance is selected automatically; otherwise `--instance` is required. Relative workflow paths resolve against the configuration file, regardless of the working directory. API keys must use `${ENV_VAR}` placeholders; literal keys are rejected. Configure only the instances you need, as all configured key placeholders must resolve.
+## Commands
 
-Workflow files use the spec's YAML frontmatter followed by formatted JSON, even though their extension is `.json`. They are not standalone JSON imports: use this CLI to push them. Plain n8n JSON exports can also be read. Frontmatter contains `name`, `active`, sorted tag names, and `lastModified`. The body contains nodes, connections, and settings. Node and workflow IDs and credential IDs are removed; credential names remain. JSON object keys and nodes are sorted, while connection arrays and parameter arrays preserve their meaningful order. Modification timestamps are informational and do not count as drift. n8n runtime data, execution history, pin data, and instance metadata are excluded.
+| Command | Description |
+|---------|-------------|
+| `n8n-sync init` | Interactive setup — creates `.n8n-sync.yml` config |
+| `n8n-sync pull` | Export all workflows to normalized JSON files |
+| `n8n-sync push` | Create/update workflows on remote instance |
+| `n8n-sync diff` | Show semantic differences between local and remote |
+| `n8n-sync status` | List all workflows with drift detection |
 
-Workflows match by exact, case-sensitive name. Duplicate names are rejected. Renaming a local workflow creates a new workflow on push. Pull reuses filenames for existing names and disambiguates slug collisions; it preserves local-only files and overwrites matching workflows. Neither push nor pull deletes workflows. Back up or commit local edits before pulling. Git operations are explicit, so the CLI never makes commits automatically.
+### Key flags
 
-Credential mappings are indexed by **target** instance: local name → target name. IDs resolve by credential type and target name using references in the target's existing workflows. For a credential not referenced there yet, set `credential_ids.<instance>.<credential-type>.<target-name>` to its ID (see example config). No private API or credential secret export is used. Missing or ambiguous references fail before any writes. Credentials themselves must already exist on the target. Mapping is also applied during drift detection.
+- `--dry-run` — preview push without writing
+- `--check` — exit 1 on drift (CI-friendly), 0 if in-sync, 2 on error
+- `--instance <name>` — target a specific configured instance
+- `--config <path>` — use a custom config file
 
-Push validates every local workflow and resolves credentials and tags before writing. Tags must already exist on the target. It creates or updates changed workflows, assigns tags, and activates/deactivates to match the local document. An already matching workflow is skipped. Remote-only workflows remain untouched. Multiple API writes are not transactional; an error can leave partial changes. The error reports the failed workflow; run `diff` before retrying. Dry run performs reads and the same preflight but no writes. Workflow parameters are preserved verbatim, including embedded workflow references; instance-specific subworkflow IDs and hardcoded secrets in parameters must be reviewed before promotion. Workflow settings must be supported by the target n8n version.
+## Why n8n-sync?
 
-`diff --check` and `status --check` exit 1 on drift, 0 when synchronized, and 2 on configuration/API/file errors. Drift states are `in-sync`, `changed`, `local-only`, and `remote-only`. Diff and status treat a missing workflow directory as empty; push requires an existing directory. This supports running checks in your own CI; a dedicated GitHub Action is outside the Phase 1 scope. Output may include sensitive workflow parameters, so protect CI logs and review exports before committing.
+Without version control, self-hosted n8n workflows are a black box:
+
+- ❌ No history of changes
+- ❌ No way to review modifications before they go live
+- ❌ No CI/CD integration
+- ❌ Credentials break when copying between instances
+- ❌ Cannot rollback a broken workflow
+
+n8n-sync fixes all of this:
+
+- ✅ **Readable Git diffs** — YAML frontmatter + sorted JSON
+- ✅ **Credential mapping** — staging → production without manual fixes
+- ✅ **CI integration** — `diff --check` exits 1 on drift
+- ✅ **Drift detection** — know instantly if someone changed a workflow in the UI
+- ✅ **Dry-run push** — preview before applying
+- ✅ **No Enterprise required** — works with any Community Edition instance
+
+## Configuration
+
+Create `.n8n-sync.yml` in your project root:
+
+```yaml
+instances:
+  staging:
+    url: https://n8n-staging.example.com
+    api_key: ${N8N_STAGING_KEY}
+  production:
+    url: https://n8n.example.com
+    api_key: ${N8N_PRODUCTION_KEY}
+    credentials:
+      "Staging DB": "Production DB"
+      "Staging API": "Production API"
+
+workflows_dir: workflows
+```
+
+API keys use `${ENV_VAR}` placeholders — never commit literal keys. Set environment variables:
 
 ```sh
+export N8N_STAGING_KEY='your-staging-api-key'
+export N8N_PRODUCTION_KEY='your-production-api-key'
+```
+
+## CI/CD integration
+
+Use `diff --check` in your pipeline to catch drift:
+
+```yaml
+# .github/workflows/n8n-drift.yml
+name: n8n workflow drift check
+on: [push, pull_request]
+jobs:
+  drift:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: pip install n8n-sync
+      - run: n8n-sync diff --instance production --check
+        env:
+          N8N_PRODUCTION_KEY: ${{ secrets.N8N_PRODUCTION_KEY }}
+```
+
+## Workflow file format
+
+Files use YAML frontmatter + normalized JSON for readable diffs:
+
+```yaml
+---
+name: Send Daily Report
+active: true
+tags: [reporting, daily]
+lastModified: "2024-10-18T12:00:00.000Z"
+---
+{
+  "nodes": [...],
+  "connections": {...},
+  "settings": {}
+}
+```
+
+Node IDs, workflow IDs, and credential IDs are stripped. Credential names are preserved for mapping. JSON keys and nodes are sorted for stable diffs.
+
+## Requirements
+
+- Python 3.10+
+- n8n Community Edition with API enabled
+- n8n API key with workflow read/write permissions
+
+## Install
+
+```sh
+pip install n8n-sync
+```
+
+For development:
+
+```sh
+git clone https://github.com/badwalx/n8n-sync.git
+cd n8n-sync
 pip install -e '.[dev]'
 pytest
-ruff check src tests
-python -m n8n_sync --help
-# Optional container; mount config/workflows and pass environment variables:
-docker build -t n8n-sync .
-docker run --rm -v "$PWD:/workspace" -e N8N_STAGING_KEY -e N8N_PRODUCTION_KEY n8n-sync status -i staging
 ```
 
-API documentation: [n8n public API](https://docs.n8n.io/api/). There is no automatic retry of writes, avoiding accidental duplicate creates after ambiguous network failures.
+## License
+
+MIT — see [LICENSE](LICENSE).
