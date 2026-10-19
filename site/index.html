@@ -3,8 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>n8n-sync — Version control for n8n Community Edition</title>
-<meta name="description" content="Git-friendly version control CLI for n8n Community Edition workflows. Pull, push, diff, and drift detection — no Enterprise required.">
+<title>n8n-sync — Git version control for n8n workflows (free, open source)</title>
+<meta name="description" content="Free CLI to back up n8n workflows to Git, detect drift, and sync across instances. No Enterprise required. pip install n8n-sync.">
+<meta property="og:title" content="n8n-sync — Git version control for n8n workflows">
+<meta property="og:description" content="Free CLI to back up n8n workflows to Git, detect drift, and sync across instances.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://n8n-sync.b7co.cloud/">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔄</text></svg>">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -12,10 +16,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 a{color:#f97316;text-decoration:none}
 a:hover{text-decoration:underline}
 .container{max-width:720px;margin:0 auto;padding:0 24px}
-.hero{padding:80px 0 60px;text-align:center}
+.hero{padding:80px 0 40px;text-align:center}
 .hero h1{font-size:2.5rem;font-weight:700;margin-bottom:12px}
 .hero h1 span{color:#f97316}
 .hero p{font-size:1.15rem;color:#a3a3a3;max-width:540px;margin:0 auto 32px}
+.pain{background:#1a1000;border:1px solid #422006;border-radius:12px;padding:20px 24px;margin:0 0 32px;text-align:center;font-size:1.05rem;color:#fbbf24}
 .badge{display:inline-block;background:#1a1a1a;border:1px solid #333;border-radius:8px;padding:4px 12px;font-size:0.85rem;margin:4px}
 .badge img{vertical-align:middle;margin-right:4px}
 .install{background:#1a1a1a;border:1px solid #333;border-radius:12px;padding:24px;margin:32px 0;text-align:center}
@@ -27,6 +32,11 @@ a:hover{text-decoration:underline}
 .cmd{background:#1a1a1a;border:1px solid #262626;border-radius:10px;padding:16px}
 .cmd code{color:#f97316;font-size:0.9rem;display:block;margin-bottom:6px}
 .cmd p{color:#a3a3a3;font-size:0.9rem}
+.usecases{padding:40px 0}
+.usecases h2{font-size:1.5rem;margin-bottom:20px;text-align:center}
+.usecase{background:#1a1a1a;border:1px solid #262626;border-radius:10px;padding:16px;margin-bottom:12px}
+.usecase h3{font-size:1rem;margin-bottom:4px;color:#f97316}
+.usecase p{color:#a3a3a3;font-size:0.9rem}
 .why{padding:40px 0}
 .why h2{font-size:1.5rem;margin-bottom:20px;text-align:center}
 .why-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
@@ -45,11 +55,16 @@ footer{text-align:center;padding:20px;color:#525252;font-size:0.85rem}
 <div class="container">
   <div class="hero">
     <h1><span>n8n-sync</span></h1>
-    <p>Git-friendly version control for n8n Community Edition workflows. Pull, push, diff, and drift detection — no Enterprise required.</p>
+    <p>Free open-source CLI that puts your n8n workflows under Git version control. Backup, diff, sync, and detect drift — without Enterprise.</p>
+    <div class="pain">
+      Lost a workflow? Can't diff changes? No CI/CD for automations?<br>
+      That's the problem n8n-sync solves.
+    </div>
     <div>
       <span class="badge"><a href="https://pypi.org/project/n8n-sync/"><img src="https://img.shields.io/pypi/v/n8n-sync.svg" alt="PyPI"></a></span>
       <span class="badge"><a href="https://github.com/badwalx/n8n-sync"><img src="https://img.shields.io/github/stars/badwalx/n8n-sync.svg" alt="GitHub"></a></span>
       <span class="badge"><img src="https://img.shields.io/pypi/l/n8n-sync.svg" alt="License"></span>
+      <span class="badge"><img src="https://img.shields.io/pypi/pyversions/n8n-sync.svg" alt="Python"></span>
     </div>
   </div>
 
@@ -57,15 +72,35 @@ footer{text-align:center;padding:20px;color:#525252;font-size:0.85rem}
     <code>pip install n8n-sync</code>
   </div>
 
+  <div class="usecases">
+    <h2>What people use it for</h2>
+    <div class="usecase">
+      <h3>Backup to Git</h3>
+      <p><code>n8n-sync pull</code> exports all workflows as readable JSON files. Commit them. You now have history, rollback, and audit trail.</p>
+    </div>
+    <div class="usecase">
+      <h3>CI/CD for automations</h3>
+      <p><code>n8n-sync diff --check</code> exits 1 if local and remote differ. Run it in GitHub Actions to catch drift before it causes incidents.</p>
+    </div>
+    <div class="usecase">
+      <h3>Staging → Production</h3>
+      <p>Push workflows from staging to production with automatic credential mapping. No manual fixes.</p>
+    </div>
+    <div class="usecase">
+      <h3>Multi-instance sync</h3>
+      <p>Manage multiple n8n instances from one Git repo. Filter by pattern: <code>n8n-sync pull --filter "prod-*"</code></p>
+    </div>
+  </div>
+
   <div class="commands">
     <h2>Commands</h2>
     <div class="cmd-grid">
       <div class="cmd"><code>n8n-sync init</code><p>Interactive setup wizard</p></div>
-      <div class="cmd"><code>n8n-sync pull</code><p>Export workflows to normalized JSON files</p></div>
+      <div class="cmd"><code>n8n-sync pull</code><p>Export workflows to normalized JSON</p></div>
       <div class="cmd"><code>n8n-sync push</code><p>Create/update workflows on remote</p></div>
-      <div class="cmd"><code>n8n-sync diff</code><p>Show semantic local vs remote differences</p></div>
-      <div class="cmd"><code>n8n-sync status</code><p>List workflows with drift detection</p></div>
-      <div class="cmd"><code>n8n-sync list</code><p>Show remote workflows with IDs & tags</p></div>
+      <div class="cmd"><code>n8n-sync diff</code><p>Semantic local vs remote diff</p></div>
+      <div class="cmd"><code>n8n-sync status</code><p>Drift detection across workflows</p></div>
+      <div class="cmd"><code>n8n-sync list</code><p>Remote workflows with IDs & tags</p></div>
     </div>
   </div>
 
@@ -74,10 +109,10 @@ footer{text-align:center;padding:20px;color:#525252;font-size:0.85rem}
     <div class="why-grid">
       <div class="why-item"><div class="icon">📝</div><h3>Readable Git diffs</h3><p>YAML frontmatter + sorted JSON = stable, meaningful diffs</p></div>
       <div class="why-item"><div class="icon">🔑</div><h3>Credential mapping</h3><p>Staging → production without manual fixes</p></div>
-      <div class="why-item"><div class="icon">🔄</div><h3>CI integration</h3><p>diff --check exits 1 on drift, 0 if in-sync</p></div>
+      <div class="why-item"><div class="icon">🔄</div><h3>CI-ready</h3><p>diff --check exits 1 on drift, 0 if in-sync</p></div>
       <div class="why-item"><div class="icon">🛡️</div><h3>Drift detection</h3><p>Know if someone changed a workflow in the UI</p></div>
       <div class="why-item"><div class="icon">👀</div><h3>Dry-run push</h3><p>Preview changes before applying them</p></div>
-      <div class="why-item"><div class="icon">🆓</div><h3>No Enterprise required</h3><p>Works with any Community Edition instance</p></div>
+      <div class="why-item"><div class="icon">🆓</div><h3>Free & open source</h3><p>MIT license. Works with any n8n instance</p></div>
     </div>
   </div>
 
