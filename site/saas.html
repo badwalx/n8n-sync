@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>n8n-sync — Workflow management dashboard</title>
+<meta name="description" content="Manage all your n8n instances from one place. Sync, diff, detect drift, and collaborate.">
+<meta property="og:title" content="n8n-sync Dashboard — Manage n8n workflows at scale">
+<meta property="og:description" content="Multi-instance n8n workflow management. Free 1 instance, Pro $15/mo, Team $30/mo.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔄</text></svg>">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#0a0a0a;color:#e5e5e5;line-height:1.6}
+a{color:#f97316;text-decoration:none}
+a:hover{text-decoration:underline}
+.container{max-width:640px;margin:0 auto;padding:0 24px}
+.hero{padding:80px 0 40px;text-align:center}
+.hero h1{font-size:2.2rem;font-weight:700;margin-bottom:12px}
+.hero h1 span{color:#f97316}
+.hero p{font-size:1.1rem;color:#a3a3a3;max-width:500px;margin:0 auto 32px}
+.pain{background:#1a1000;border:1px solid #422006;border-radius:12px;padding:16px 20px;margin:0 auto 32px;text-align:center;font-size:0.95rem;color:#fbbf24;max-width:480px}
+.pricing{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin:24px 0 32px}
+@media(max-width:600px){.pricing{grid-template-columns:1fr}}
+.tier{background:#1a1a1a;border:1px solid #262626;border-radius:12px;padding:20px 16px;text-align:center}
+.tier h2{font-size:1.05rem;margin-bottom:6px}
+.tier .price{font-size:1.8rem;font-weight:700;color:#f97316;margin-bottom:4px}
+.tier .period{color:#737373;font-size:0.8rem}
+.tier ul{list-style:none;text-align:left;margin:12px 0;padding:0}
+.tier li{padding:3px 0;color:#a3a3a3;font-size:0.82rem}
+.tier li::before{content:'✓ ';color:#22c55e}
+.tier .cta{display:inline-block;background:#f97316;color:#000;font-weight:600;padding:8px 20px;border-radius:6px;text-decoration:none;font-size:0.85rem;margin-top:8px}
+.tier .cta:hover{text-decoration:none;opacity:0.9}
+.tier.popular{border-color:#f97316;position:relative}
+.tier.popular .badge{position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:#f97316;color:#000;padding:2px 10px;border-radius:4px;font-size:0.7rem;font-weight:700;letter-spacing:0.5px}
+.faq{padding:24px 0}
+.faq h2{font-size:1.3rem;margin-bottom:16px;text-align:center}
+.faq-item{margin-bottom:12px}
+.faq-item h3{font-size:0.95rem;color:#f97316;margin-bottom:4px}
+.faq-item p{color:#a3a3a3;font-size:0.85rem}
+.footer{text-align:center;padding:24px 0;color:#525252;font-size:0.8rem}
+.footer a{color:#737373}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="hero">
+    <h1><span>n8n-sync</span> Dashboard</h1>
+    <p>Manage all your n8n instances from one place. Sync, diff, detect drift — without the CLI.</p>
+    <div class="pain">Managing n8n workflows across instances shouldn't require Enterprise.</div>
+  </div>
+
+  <div class="pricing">
+    <div class="tier">
+      <h2>Free</h2>
+      <div class="price">$0</div><div class="period">forever</div>
+      <ul>
+        <li>1 n8n instance</li>
+        <li>View workflows</li>
+        <li>Manual pull</li>
+        <li>CLI included</li>
+      </ul>
+      <a href="https://github.com/badwalx/n8n-sync" class="cta">Get started</a>
+    </div>
+    <div class="tier popular">
+      <div class="badge">POPULAR</div>
+      <h2>Pro</h2>
+      <div class="price">$15</div><div class="period">per month</div>
+      <ul>
+        <li>3 n8n instances</li>
+        <li>Full sync (pull + push)</li>
+        <li>Diff & drift detection</li>
+        <li>Scheduled sync (daily)</li>
+        <li>Export to Git</li>
+      </ul>
+      <a href="#waitlist" class="cta">Join waitlist</a>
+    </div>
+    <div class="tier">
+      <h2>Team</h2>
+      <div class="price">$30</div><div class="period">per month</div>
+      <ul>
+        <li>10 n8n instances</li>
+        <li>Everything in Pro</li>
+        <li>5 team members</li>
+        <li>Audit logs</li>
+        <li>Credential mapping</li>
+        <li>Priority support</li>
+      </ul>
+      <a href="#waitlist" class="cta">Join waitlist</a>
+    </div>
+  </div>
+
+  <div class="faq">
+    <h2>Common questions</h2>
+    <div class="faq-item">
+      <h3>How is this different from the CLI?</h3>
+      <p>The CLI is free and always will be. The dashboard adds a web UI, multi-instance management, scheduled sync, team collaboration, and audit logs — things you can't do from a terminal alone.</p>
+    </div>
+    <div class="faq-item">
+      <h3>Do I need the CLI to use the dashboard?</h3>
+      <p>No. The dashboard connects directly to your n8n instances via API. The CLI is a separate tool for local/Git-based workflows.</p>
+    </div>
+    <div class="faq-item">
+      <h3>Is my n8n API key safe?</h3>
+      <p>API keys are encrypted at rest and never exposed in the UI. All connections use HTTPS.</p>
+    </div>
+    <div class="faq-item">
+      <h3>Can I cancel anytime?</h3>
+      <p>Yes. No contracts, no commitment. Cancel from your dashboard and your data is exportable.</p>
+    </div>
+  </div>
+
+  <div class="footer">
+    <a href="https://n8n-sync.b7co.cloud">n8n-sync CLI</a> · 
+    <a href="https://github.com/badwalx/n8n-sync">GitHub</a> · 
+    Built by <a href="https://b7co.in">B7 & CO.</a> · 
+    Not affiliated with n8n GmbH
+  </div>
+</div>
+</body>
+</html>
