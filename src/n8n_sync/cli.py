@@ -17,6 +17,8 @@ from .normalize import read_directory
 from .sync import detect_drift, index_workflows, write_pull
 from .sync import push as push_workflows
 
+FilterOption = Annotated[str | None, typer.Option("--filter", "-f", help="Filter workflows by name glob (e.g. '*report*', 'Daily*')")]
+
 app = typer.Typer(no_args_is_help=True, help="Version and synchronize n8n workflows.")
 console = Console()
 errors = Console(stderr=True)
@@ -30,6 +32,14 @@ def version_callback(value: bool):
         raise typer.Exit()
 
 
+def apply_filter(workflows: dict[str, dict], pattern: str | None) -> dict[str, dict]:
+    """Filter workflow dict by name glob pattern."""
+    if not pattern:
+        return workflows
+    import fnmatch
+    return {k: v for k, v in workflows.items() if fnmatch.fnmatch(k, pattern)}
+
+
 @app.callback()
 def main(
     version: Annotated[
@@ -40,18 +50,18 @@ def main(
 
 
 async def execute(
-    command: str, path: Path, instance: str | None, dry_run: bool = False, check: bool = False
+    command: str, path: Path, instance: str | None, dry_run: bool = False, check: bool = False, filter_pattern: str | None = None
 ):
     config = load_config(path)
     name, target = config.instance(instance)
     async with N8nClient(target.url, target.api_key.get_secret_value(), config.timeout) as client:
         if command == "push":
-            messages = await push_workflows(client, config, name, dry_run)
+            messages = await push_workflows(client, config, name, dry_run, filter_pattern)
             for message in messages:
                 console.print(message, markup=False)
             console.print(f"{len(messages)} workflow(s) {'planned' if dry_run else 'pushed'}.")
             return
-        remote = index_workflows(await client.workflows())
+        remote = apply_filter(index_workflows(await client.workflows()), filter_pattern)
         if command == "pull":
             count = write_pull(config.workflow_dir, remote)
             console.print(f"Pulled {count} workflow(s) into {config.workflow_dir}", markup=False)
@@ -90,9 +100,9 @@ def run(*args, **kwargs):
 
 
 @app.command()
-def pull(config: ConfigOption = Path(".n8n-sync.yml"), instance: InstanceOption = None):
+def pull(config: ConfigOption = Path(".n8n-sync.yml"), instance: InstanceOption = None, filter: FilterOption = None):
     """Export workflows to portable files, preserving local-only files."""
-    run("pull", config, instance)
+    run("pull", config, instance, filter_pattern=filter)
 
 
 @app.command()
@@ -100,9 +110,10 @@ def push(
     config: ConfigOption = Path(".n8n-sync.yml"),
     instance: InstanceOption = None,
     dry_run: Annotated[bool, typer.Option("--dry-run", help="Validate without writing")] = False,
+    filter: FilterOption = None,
 ):
     """Create or update workflows by exact name and synchronize activation and tags."""
-    run("push", config, instance, dry_run=dry_run)
+    run("push", config, instance, dry_run=dry_run, filter_pattern=filter)
 
 
 @app.command()
@@ -110,9 +121,10 @@ def diff(
     config: ConfigOption = Path(".n8n-sync.yml"),
     instance: InstanceOption = None,
     check: Annotated[bool, typer.Option("--check", help="Exit 1 if drift exists")] = False,
+    filter: FilterOption = None,
 ):
     """Show semantic local-versus-remote differences."""
-    run("diff", config, instance, check=check)
+    run("diff", config, instance, check=check, filter_pattern=filter)
 
 
 @app.command()

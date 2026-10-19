@@ -114,9 +114,12 @@ def credential_registry(remote: dict[str, dict], explicit: dict) -> dict:
 
 
 async def push(
-    client: N8nClient, config: Config, instance: str, dry_run: bool = False
+    client: N8nClient, config: Config, instance: str, dry_run: bool = False, filter_pattern: str | None = None
 ) -> list[str]:
     local = read_directory(config.workflow_dir)
+    if filter_pattern:
+        import fnmatch
+        local = {k: v for k, v in local.items() if fnmatch.fnmatch(k, filter_pattern)}
     remote = index_workflows(await client.workflows())
     registry = credential_registry(remote, config.credential_ids.get(instance, {}))
     mapping = config.credentials_map.get(instance, {})

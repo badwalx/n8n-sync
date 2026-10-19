@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>n8n-sync — Version control for n8n Community Edition</title>
+<meta name="description" content="Git-friendly version control CLI for n8n Community Edition workflows. Pull, push, diff, and drift detection — no Enterprise required.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔄</text></svg>">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#0a0a0a;color:#e5e5e5;line-height:1.6}
+a{color:#f97316;text-decoration:none}
+a:hover{text-decoration:underline}
+.container{max-width:720px;margin:0 auto;padding:0 24px}
+.hero{padding:80px 0 60px;text-align:center}
+.hero h1{font-size:2.5rem;font-weight:700;margin-bottom:12px}
+.hero h1 span{color:#f97316}
+.hero p{font-size:1.15rem;color:#a3a3a3;max-width:540px;margin:0 auto 32px}
+.badge{display:inline-block;background:#1a1a1a;border:1px solid #333;border-radius:8px;padding:4px 12px;font-size:0.85rem;margin:4px}
+.badge img{vertical-align:middle;margin-right:4px}
+.install{background:#1a1a1a;border:1px solid #333;border-radius:12px;padding:24px;margin:32px 0;text-align:center}
+.install code{font-family:'SF Mono',Monaco,'Courier New',monospace;font-size:1.1rem;color:#f97316}
+.commands{padding:40px 0}
+.commands h2{font-size:1.5rem;margin-bottom:20px;text-align:center}
+.cmd-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:600px){.cmd-grid{grid-template-columns:1fr}}
+.cmd{background:#1a1a1a;border:1px solid #262626;border-radius:10px;padding:16px}
+.cmd code{color:#f97316;font-size:0.9rem;display:block;margin-bottom:6px}
+.cmd p{color:#a3a3a3;font-size:0.9rem}
+.why{padding:40px 0}
+.why h2{font-size:1.5rem;margin-bottom:20px;text-align:center}
+.why-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:600px){.why-grid{grid-template-columns:1fr}}
+.why-item{padding:16px;border-radius:10px}
+.why-item .icon{font-size:1.5rem;margin-bottom:8px}
+.why-item h3{font-size:1rem;margin-bottom:4px}
+.why-item p{color:#a3a3a3;font-size:0.9rem}
+.cta{padding:40px 0 60px;text-align:center}
+.cta a{display:inline-block;background:#f97316;color:#000;font-weight:600;padding:12px 32px;border-radius:8px;margin:8px;font-size:1rem}
+.cta a.secondary{background:transparent;color:#f97316;border:1px solid #f97316}
+footer{text-align:center;padding:20px;color:#525252;font-size:0.85rem}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="hero">
+    <h1><span>n8n-sync</span></h1>
+    <p>Git-friendly version control for n8n Community Edition workflows. Pull, push, diff, and drift detection — no Enterprise required.</p>
+    <div>
+      <span class="badge"><a href="https://pypi.org/project/n8n-sync/"><img src="https://img.shields.io/pypi/v/n8n-sync.svg" alt="PyPI"></a></span>
+      <span class="badge"><a href="https://github.com/badwalx/n8n-sync"><img src="https://img.shields.io/github/stars/badwalx/n8n-sync.svg" alt="GitHub"></a></span>
+      <span class="badge"><img src="https://img.shields.io/pypi/l/n8n-sync.svg" alt="License"></span>
+    </div>
+  </div>
+
+  <div class="install">
+    <code>pip install n8n-sync</code>
+  </div>
+
+  <div class="commands">
+    <h2>Commands</h2>
+    <div class="cmd-grid">
+      <div class="cmd"><code>n8n-sync init</code><p>Interactive setup wizard</p></div>
+      <div class="cmd"><code>n8n-sync pull</code><p>Export workflows to normalized JSON files</p></div>
+      <div class="cmd"><code>n8n-sync push</code><p>Create/update workflows on remote</p></div>
+      <div class="cmd"><code>n8n-sync diff</code><p>Show semantic local vs remote differences</p></div>
+      <div class="cmd"><code>n8n-sync status</code><p>List workflows with drift detection</p></div>
+      <div class="cmd"><code>n8n-sync list</code><p>Show remote workflows with IDs & tags</p></div>
+    </div>
+  </div>
+
+  <div class="why">
+    <h2>Why n8n-sync?</h2>
+    <div class="why-grid">
+      <div class="why-item"><div class="icon">📝</div><h3>Readable Git diffs</h3><p>YAML frontmatter + sorted JSON = stable, meaningful diffs</p></div>
+      <div class="why-item"><div class="icon">🔑</div><h3>Credential mapping</h3><p>Staging → production without manual fixes</p></div>
+      <div class="why-item"><div class="icon">🔄</div><h3>CI integration</h3><p>diff --check exits 1 on drift, 0 if in-sync</p></div>
+      <div class="why-item"><div class="icon">🛡️</div><h3>Drift detection</h3><p>Know if someone changed a workflow in the UI</p></div>
+      <div class="why-item"><div class="icon">👀</div><h3>Dry-run push</h3><p>Preview changes before applying them</p></div>
+      <div class="why-item"><div class="icon">🆓</div><h3>No Enterprise required</h3><p>Works with any Community Edition instance</p></div>
+    </div>
+  </div>
+
+  <div class="cta">
+    <a href="https://github.com/badwalx/n8n-sync">GitHub</a>
+    <a href="https://pypi.org/project/n8n-sync/" class="secondary">PyPI</a>
+  </div>
+
+  <footer>
+    MIT License · Built by <a href="https://b7co.in">B7 & CO.</a> · n8n-sync is not affiliated with n8n GmbH
+  </footer>
+</div>
+</body>
+</html>
